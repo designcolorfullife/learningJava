@@ -6,6 +6,7 @@ import java.net.Socket;
 
 import com.alibaba.fastjson.JSON;
 import com.zhangwei.learning.net.factory.ActionFactory;
+import com.zhangwei.learning.net.factory.ActionFactoryImpl;
 import com.zhangwei.learning.net.vo.TranslationVO;
 import com.zhangwei.learning.threadpool.GlobalThreadPool;
 
@@ -15,9 +16,9 @@ import com.zhangwei.learning.threadpool.GlobalThreadPool;
  * @author Administrator
  * 
  */
-public class GlobalSocketRequestHandler {
+public class GlobalSocketRequestHandler implements SocketHandler{
 
-	private ActionFactory actionFactory = new ActionFactory();
+	private ActionFactory actionFactory = new ActionFactoryImpl();
 
 	/**
 	 * 从客户端读取请求,渲染出对应的动作并且交给动作工厂处理

@@ -9,86 +9,70 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import com.zhangwei.learning.enums.ConfigsEnum;
+import com.zhangwei.learning.net.handler.SocketHandler;
+import com.zhangwei.learning.utils.ConfigUtil;
 import org.springframework.core.io.ClassPathResource;
 
-import com.zhangwei.learning.enums.ServerSocketConfig;
 import com.zhangwei.learning.net.handler.GlobalSocketRequestHandler;
 import com.zhangwei.learning.utils.LoggerUtils;
 
 public class SocketServer {
 
-	private static ServerSocket serverSocket = null;
+    private static ServerSocket serverSocket = null;
 
-	private static GlobalSocketRequestHandler globalSocketRequestHandler = new GlobalSocketRequestHandler();
+    private static GlobalSocketRequestHandler globalSocketRequestHandler = new GlobalSocketRequestHandler();
 
-	private static Map<String, String> configsMap = new HashMap<String, String>();
+    private static Map<String, String> configsMap = new HashMap<String, String>();
 
-	private static  void InitConfig() throws Exception {
-		Properties properties = new Properties();
+    private static SocketHandler socketHandler = new GlobalSocketRequestHandler();
 
+    private static void InitSocket() {
+        String portObject = configsMap
+                .get(ConfigsEnum.SERVER_SOCKET_PORT);
+        if (portObject != null) {
+            try {
+                serverSocket = new ServerSocket(Integer.valueOf(portObject));
+                LoggerUtils.Info("初始化服务端Socket端口:"
+                        + Integer.valueOf(portObject));
+            } catch (NumberFormatException e) {
+                //
+                e.printStackTrace();
+            } catch (IOException e) {
+                //
+                e.printStackTrace();
 
-//			InputStream inputStream = SocketServer.class.getClassLoader().getResourceAsStream("serversocket.properties");
-			InputStream inputStream = new ClassPathResource(
-                    "configs.properties").getInputStream();
-			properties.load(inputStream);
-			inputStream.close();
-
-		if (properties.isEmpty()) {
-			LoggerUtils.Info("配置文件初始化失败");
-			throw new Exception("配置文件初始化失败");
-		} else {
-            for (Entry<Object, Object> valuesEntry : properties.entrySet()) {
-                configsMap.put(valuesEntry.getKey().toString(), valuesEntry
-                        .getValue().toString());
-                LoggerUtils.Info("初始化配置,Key:" + valuesEntry.getKey()
-                        + "|value:" + valuesEntry.getValue());
             }
         }
-	}
-
-	private static void InitSocket() {
-		String portObject = configsMap
-				.get(ServerSocketConfig.SERVER_SOCKET_PORT);
-		if (portObject != null) {
-			try {
-				serverSocket = new ServerSocket(Integer.valueOf(portObject));
-				LoggerUtils.Info("初始化服务端Socket端口:"
-						+ Integer.valueOf(portObject));
-			} catch (NumberFormatException e) {
-				//
-				e.printStackTrace();
-			} catch (IOException e) {
-				//
-				e.printStackTrace();
-
-			}
-		}
-	}
+    }
 
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         try {
-            InitConfig();
+            ConfigUtil.init(configsMap, "configs.properties");
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
         InitSocket();
-		//
-		try {
-			LoggerUtils.Info("服务器开始监听地址" + serverSocket.getInetAddress() + ":"
-					+ serverSocket.getLocalPort());
-			while (true) {
-				Socket newSocket = serverSocket.accept();
-				LoggerUtils.Info("建立Socket链接:"
-						+ newSocket.getRemoteSocketAddress());
-				globalSocketRequestHandler.handle(newSocket);
-				LoggerUtils.Info("继续监听下一个请求");
-			}
-		} catch (IOException e) {
-			//
-			e.printStackTrace();
-		}
-	}
+        //
+        try {
+            LoggerUtils.Info("服务器开始监听地址" + serverSocket.getInetAddress() + ":"
+                    + serverSocket.getLocalPort());
+            while (true) {
+                Socket newSocket = serverSocket.accept();
+                LoggerUtils.Info("建立Socket链接:"
+                        + newSocket.getRemoteSocketAddress());
+                socketHandler.handle(newSocket);
+                LoggerUtils.Info("继续监听下一个请求");
+            }
+        } catch (IOException e) {
+            //
+            e.printStackTrace();
+        }
+    }
 
+    public static String getConfig(String a) {
+        return configsMap.get(a);
+    }
 }
