@@ -16,7 +16,9 @@ import org.springframework.core.io.ClassPathResource;
 
 import com.zhangwei.learning.net.handler.GlobalSocketRequestHandler;
 import com.zhangwei.learning.utils.LoggerUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SocketServer {
 
     private static ServerSocket serverSocket = null;
@@ -47,7 +49,7 @@ public class SocketServer {
     }
 
 
-    public static void main(String[] args) {
+    public static void runserver(String[] args) {
         try {
             ConfigUtil.init(configsMap, "configs.properties");
         } catch (Exception e) {
