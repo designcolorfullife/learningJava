@@ -5,6 +5,7 @@ import com.zhangwei.learning.net.processor.ActionProcessor;
 import com.zhangwei.learning.net.processor.DownLoadActionProcessor;
 import com.zhangwei.learning.net.vo.TranslationVO;
 import com.zhangwei.learning.utils.LoggerUtils;
+import org.springframework.stereotype.Component;
 
 import java.net.Socket;
 import java.util.HashMap;
@@ -15,17 +16,19 @@ import java.util.Map;
  */
 public class ActionFactoryImpl implements ActionFactory{
 
-    private Map<ActionEnum, ActionProcessor> actionMap = new HashMap<ActionEnum, ActionProcessor>();
+    private Map<String, ActionProcessor> actionMap;
 
     public void handle(TranslationVO translationVO, Socket client) {
 
-        actionMap.put(ActionEnum.DOWNLOAD, new DownLoadActionProcessor());
 
         LoggerUtils.Info("当前得到的动作" + translationVO + "From:"
                 + client.getRemoteSocketAddress());
         ActionProcessor actionProcessor = actionMap.get(translationVO
-                .getActionEnum());
+                .getActionEnum().getCode());
         actionProcessor.invoke(translationVO, client);
     }
 
+    public void setActionMap(Map<String, ActionProcessor> actionMap) {
+        this.actionMap = actionMap;
+    }
 }

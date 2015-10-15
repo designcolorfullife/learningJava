@@ -1,37 +1,33 @@
 package com.zhangwei.learning.net;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-
 import com.zhangwei.learning.enums.ConfigsEnum;
 import com.zhangwei.learning.net.handler.SocketHandler;
-import com.zhangwei.learning.utils.ConfigUtil;
-import org.springframework.core.io.ClassPathResource;
-
-import com.zhangwei.learning.net.handler.GlobalSocketRequestHandler;
+import com.zhangwei.learning.utils.ConfigMap;
 import com.zhangwei.learning.utils.LoggerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+
+/**
+ * 服务端启动socket的类
+ */
 @Component
 public class SocketServer {
 
-    private static ServerSocket serverSocket = null;
+    private ServerSocket serverSocket = null;
 
-    private static GlobalSocketRequestHandler globalSocketRequestHandler = new GlobalSocketRequestHandler();
+    private ConfigMap configMap;
 
-    private static Map<String, String> configsMap = new HashMap<String, String>();
+    private SocketHandler socketHandler;
 
-    private static SocketHandler socketHandler = new GlobalSocketRequestHandler();
-
-    private static void InitSocket() {
-        String portObject = configsMap
-                .get(ConfigsEnum.SERVER_SOCKET_PORT);
+    private void InitSocket() {
+        String portObject = configMap
+                .getConfig(ConfigsEnum.SERVER_SOCKET_PORT);
         if (portObject != null) {
             try {
                 serverSocket = new ServerSocket(Integer.valueOf(portObject));
@@ -49,15 +45,8 @@ public class SocketServer {
     }
 
 
-    public static void runserver(String[] args) {
-        try {
-            ConfigUtil.init(configsMap, "configs.properties");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        InitSocket();
-        //
+    public void runserver() {
+
         try {
             LoggerUtils.Info("服务器开始监听地址" + serverSocket.getInetAddress() + ":"
                     + serverSocket.getLocalPort());
@@ -74,7 +63,11 @@ public class SocketServer {
         }
     }
 
-    public static String getConfig(String a) {
-        return configsMap.get(a);
+    public void setConfigMap(ConfigMap configMap) {
+        this.configMap = configMap;
+    }
+
+    public void setSocketHandler(SocketHandler socketHandler) {
+        this.socketHandler = socketHandler;
     }
 }
