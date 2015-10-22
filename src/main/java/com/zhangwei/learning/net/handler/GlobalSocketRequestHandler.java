@@ -1,16 +1,15 @@
 package com.zhangwei.learning.net.handler;
 
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.Socket;
 
 import com.alibaba.fastjson.JSON;
 import com.zhangwei.learning.net.factory.ActionFactory;
-import com.zhangwei.learning.net.factory.ActionFactoryImpl;
 import com.zhangwei.learning.net.vo.TranslationVO;
 import com.zhangwei.learning.threadpool.GlobalThreadPool;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.zhangwei.learning.utils.LoggerUtils;
 
 /**
  * socket请求的处理Handler
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Component;
  * @author Administrator
  * 
  */
-public class GlobalSocketRequestHandler implements SocketHandler{
+public class GlobalSocketRequestHandler implements SocketHandler {
 
 	private ActionFactory actionFactory;
 
@@ -31,7 +30,20 @@ public class GlobalSocketRequestHandler implements SocketHandler{
 		GlobalThreadPool.submitTaskWithoutResult(new Runnable() {
 
 			public void run() {
-				TranslationVO translationVO = getTranslationVO(client);
+
+				TranslationVO translationVO = null;
+
+				InputStream inputStream = null;
+				try {
+					BufferedReader reader = getReader(client.getInputStream());
+					// LoggerUtils.Info(reader.readLine());
+					String actString = reader.readLine();
+					LoggerUtils.Info("获取到动作字符" + actString);
+					translationVO = JSON.parseObject(actString,
+							TranslationVO.class);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 				if (translationVO == null) {
 					return;
 				}
@@ -40,28 +52,11 @@ public class GlobalSocketRequestHandler implements SocketHandler{
 		});
 	}
 
-	private TranslationVO getTranslationVO(Socket client) {
-		DataInputStream dis = null;
-		TranslationVO translationVO = null;
-		try {
-			dis = new DataInputStream(client.getInputStream());
-			translationVO = JSON
-					.parseObject(dis.readUTF(), TranslationVO.class);
-			client.shutdownInput();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (dis != null)
-					dis.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return translationVO;
+	private BufferedReader getReader(InputStream inputStream) {
+		return new BufferedReader(new InputStreamReader(inputStream));
 	}
 
-    public void setActionFactory(ActionFactory actionFactory) {
-        this.actionFactory = actionFactory;
-    }
+	public void setActionFactory(ActionFactory actionFactory) {
+		this.actionFactory = actionFactory;
+	}
 }

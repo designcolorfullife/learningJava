@@ -1,34 +1,35 @@
 package com.zhangwei.learning.net.factory;
 
-import com.zhangwei.learning.enums.ActionEnum;
-import com.zhangwei.learning.net.processor.ActionProcessor;
-import com.zhangwei.learning.net.processor.DownLoadActionProcessor;
-import com.zhangwei.learning.net.vo.TranslationVO;
-import com.zhangwei.learning.utils.LoggerUtils;
-import org.springframework.stereotype.Component;
-
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
+
+import com.zhangwei.learning.net.processor.ActionProcessor;
+import com.zhangwei.learning.net.vo.TranslationVO;
+import com.zhangwei.learning.threadpool.GlobalThreadPool;
+import com.zhangwei.learning.utils.LoggerUtils;
 
 /**
  * Created by design on 15-10-15.
  */
-public class ActionFactoryImpl implements ActionFactory{
+public class ActionFactoryImpl implements ActionFactory {
 
-    private Map<String, ActionProcessor> actionMap;
+	private Map<String, ActionProcessor> actionMap;
 
-    public void handle(TranslationVO translationVO, Socket client) {
+	public void handle(final TranslationVO translationVO, final Socket client) {
+		GlobalThreadPool.submitTaskWithoutResult(new Runnable() {
 
+			public void run() {
+				// TODO Auto-generated method stub
+				LoggerUtils.Info("当前得到的动作" + translationVO + "From:"
+						+ client.getRemoteSocketAddress());
+				ActionProcessor actionProcessor = actionMap.get(translationVO
+						.getActionEnum().getCode());
+				actionProcessor.invoke(translationVO, client);
+			}
+		});
+	}
 
-        LoggerUtils.Info("当前得到的动作" + translationVO + "From:"
-                + client.getRemoteSocketAddress());
-        ActionProcessor actionProcessor = actionMap.get(translationVO
-                .getActionEnum().getCode());
-        actionProcessor.invoke(translationVO, client);
-    }
-
-    public void setActionMap(Map<String, ActionProcessor> actionMap) {
-        this.actionMap = actionMap;
-    }
+	public void setActionMap(Map<String, ActionProcessor> actionMap) {
+		this.actionMap = actionMap;
+	}
 }

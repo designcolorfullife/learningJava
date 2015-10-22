@@ -16,6 +16,8 @@ public class TranslationVO implements Serializable {
 	 */
 	private static final long serialVersionUID = -2097716960982167392L;
 
+	public static final String SPLITFIX = "EOP";
+
 	private ActionEnum actionEnum;
 	private Object data;
 
