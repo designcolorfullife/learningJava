@@ -20,22 +20,20 @@ public class SocketClient {
 		//
 		String[] urls = {
 
-		"http://www.baidu.com", "http://www.baidu.com", "http://www.baidu.com",
-				"http://www.baidu.com", "http://www.baidu.com" };
+		"http://www.baidu.com" };
 		try {
-			socket = new Socket(addressString, port);
 
-			BufferedWriter writer = getWriter(socket.getOutputStream());
 			for (String string : urls) {
-
+				socket = new Socket(addressString, port);
+				BufferedWriter writer = getWriter(socket.getOutputStream());
 				TranslationVO translationVO = new TranslationVO();
 				translationVO.setActionEnum(ActionEnum.DOWNLOAD);
 				translationVO.setData(string);
-				writer.write(JSON.toJSONString(translationVO)
-						+ TranslationVO.SPLITFIX);
+				writer.write(JSON.toJSONString(translationVO));
 				writer.flush();
+				socket.close();
 			}
-			socket.close();
+
 		} catch (IOException e) {
 			//
 			e.printStackTrace();

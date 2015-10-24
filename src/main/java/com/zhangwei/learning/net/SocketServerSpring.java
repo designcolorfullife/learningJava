@@ -1,6 +1,7 @@
 package com.zhangwei.learning.net;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.zhangwei.learning.utils.LoggerUtils;
@@ -13,7 +14,7 @@ public class SocketServerSpring {
 
 		// BeanFactory beanFactory = new XmlBeanFactory(new ClassPathResource(
 		// "spring.xml"));
-		BeanFactory beanFactory = new ClassPathXmlApplicationContext(
+		ApplicationContext beanFactory = new ClassPathXmlApplicationContext(
 				"spring.xml");
 		LoggerUtils.Info("test");
 		SocketServer socketServer = (SocketServer) beanFactory
