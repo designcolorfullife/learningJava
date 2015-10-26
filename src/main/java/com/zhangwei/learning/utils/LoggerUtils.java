@@ -43,4 +43,17 @@ public class LoggerUtils {
 		}
 		Info(logger, stringBuilder.toString());
 	}
+
+	/**
+	 * 可变参数列表实现多个参数打印
+	 * 
+	 * @param args
+	 */
+	public static void Info(Object... args) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (Object aObject : args) {
+			stringBuilder.append(aObject);
+		}
+		Info(logger, stringBuilder.toString());
+	}
 }
